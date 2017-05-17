@@ -13,12 +13,14 @@ namespace Shipwreck.Purifier
         private static readonly Regex me = new Regex("僕");
         private static readonly Regex comma = new Regex("[､、]");
 
-        private const string DOT_CORE = "[｡。!?！？]";
+        private const string DOT_CORE = "[～…]*[｡。!?！？｣」》♪♫]";
         private const string DOT =
             "("
             + "(?<ne>ね)"
             + "|(?<yo>(だ|こと)?よ)" // TODO: 連用形+てよ
+            + "|(?<remove>です|だ|だ?わ|さ|な|の)" // TODO: こと|ものが体言止めかどうか
             + ")?(?<dot>" + DOT_CORE + "+|" + DOT_CORE + "*$)";
+
         private static readonly Regex dot = new Regex(DOT);
 
         public static string Purify(string text)
@@ -112,6 +114,12 @@ namespace Shipwreck.Purifier
             {
                 dl = 3 - yg.Length;
                 return "$`ぷりよ${dot}$'";
+            }
+            var rg = dm.Groups["remove"];
+            if (rg.Success)
+            {
+                dl = 2 - rg.Length;
+                return "$`ぷり${dot}$'";
             }
 
             // TODO: 敬語対策

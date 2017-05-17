@@ -48,6 +48,38 @@ namespace Shipwreck.Purifier.Tests
 
         #endregion Rule for yo
 
+        #region Rule for removing
+
+        [TestMethod]
+        public void RemovingTest1()
+            => Assert.AreEqual("解散ぷり", Purifier.Purify("解散です"));
+
+        [TestMethod]
+        public void RemovingTest2()
+            => Assert.AreEqual("完璧ぷり", Purifier.Purify("完璧だ"));
+
+        [TestMethod]
+        public void RemovingTest3()
+            => Assert.AreEqual("小鳥ちゃんぷり", Purifier.Purify("小鳥ちゃんだわ"));
+
+        [TestMethod]
+        public void RemovingTest4()
+            => Assert.AreEqual("待っていたぷり", Purifier.Purify("待っていたわ"));
+
+        [TestMethod]
+        public void RemovingTest5()
+            => Assert.AreEqual("怪盗ぷり", Purifier.Purify("怪盗さ"));
+
+        [TestMethod]
+        public void RemovingTest6()
+            => Assert.AreEqual("良いぷり…", Purifier.Purify("良いな…"));
+
+        [TestMethod]
+        public void RemovingTest7()
+            => Assert.AreEqual("美味しいぷり", Purifier.Purify("美味しいの"));
+
+        #endregion Rule for removing
+
         #endregion Dot Convertion
 
         [TestMethod]
