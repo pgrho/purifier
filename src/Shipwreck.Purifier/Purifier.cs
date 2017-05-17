@@ -14,7 +14,11 @@ namespace Shipwreck.Purifier
         private static readonly Regex comma = new Regex("[､、]");
 
         private const string DOT_CORE = "[｡。!?！？]";
-        private const string DOT = "(" + DOT_CORE + "+|" + DOT_CORE + "*$)";
+        private const string DOT =
+            "("
+            + "(?<ne>ね)"
+            + "|(?<yo>だ?よ)" // TODO: 命令形と区別する
+            + ")?(?<dot>" + DOT_CORE + "+|" + DOT_CORE + "*$)";
         private static readonly Regex dot = new Regex(DOT);
 
         public static string Purify(string text)
@@ -65,22 +69,7 @@ namespace Shipwreck.Purifier
                 else if (dm?.Success == true)
                 {
                     used = dm;
-
-                    // TODO: 敬語対策
-                    // TODO: です|である等の削除
-
-                    var fc = dm.Value.FirstOrDefault();
-
-                    if (fc == '!' || fc == '！')
-                    {
-                        text = dm.Result("$`っぷり$&$'");
-                        dl = 3;
-                    }
-                    else
-                    {
-                        text = dm.Result("$`ぷり$&$'");
-                        dl = 2;
-                    }
+                    text = dm.Result(GetDotReplacement(text, dm, out dl));
                 }
 
                 ws = GetNextStartIndex(wm, used, dl);
@@ -105,6 +94,37 @@ namespace Shipwreck.Purifier
         {
             // TODO: 代名詞を置換可能か判定する
             return true;
+        }
+
+        private static string GetDotReplacement(string text, Match dm, out int dl)
+        {
+            var dotChar = dm.Value.FirstOrDefault();
+            var exclamation = dotChar == '!' || dotChar == '！';
+
+            var ng = dm.Groups["ne"];
+            if (ng.Success)
+            {
+                dl = 2;
+                return "$`ぷりね${dot}$'";
+            }
+            var yg = dm.Groups["yo"];
+            if (yg.Success)
+            {
+                dl = 3 - yg.Length;
+                return "$`ぷりよ${dot}$'";
+            }
+
+            // TODO: 敬語対策
+            // TODO: です|である等の削除
+
+            if (exclamation)
+            {
+                dl = 3;
+                return "$`っぷり$&$'";
+            }
+
+            dl = 2;
+            return "$`ぷり$&$'";
         }
     }
 }
