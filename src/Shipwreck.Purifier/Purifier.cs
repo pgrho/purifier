@@ -12,7 +12,10 @@ namespace Shipwreck.Purifier
         private static readonly Regex we = new Regex("(私達|我々|われわれ)");
         private static readonly Regex me = new Regex("僕");
         private static readonly Regex comma = new Regex("[､、]");
-        private static readonly Regex dot = new Regex("([｡。!?！？]|[｡。!?！？]+$)");
+
+        private const string DOT_CORE = "[｡。!?！？]";
+        private const string DOT = "(" + DOT_CORE + "+|" + DOT_CORE + "*$)";
+        private static readonly Regex dot = new Regex(DOT);
 
         public static string Purify(string text)
         {
@@ -66,8 +69,18 @@ namespace Shipwreck.Purifier
                     // TODO: 敬語対策
                     // TODO: です|である等の削除
 
-                    text = dm.Result("$`ぷり$&$'");
-                    dl = 2;
+                    var fc = dm.Value.FirstOrDefault();
+
+                    if (fc == '!' || fc == '！')
+                    {
+                        text = dm.Result("$`っぷり$&$'");
+                        dl = 3;
+                    }
+                    else
+                    {
+                        text = dm.Result("$`ぷり$&$'");
+                        dl = 2;
+                    }
                 }
 
                 ws = GetNextStartIndex(wm, used, dl);
