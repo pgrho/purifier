@@ -42,6 +42,10 @@ namespace Shipwreck.Purifier.Tests
         public void YoTest2()
             => Assert.AreEqual("検事ぷりよ", Purifier.Purify("検事だよ"));
 
+        [TestMethod]
+        public void YoTest3()
+            => Assert.AreEqual("問題ないぷりよ", Purifier.Purify("問題ないことよ"));
+
         #endregion Rule for yo
 
         #endregion Dot Convertion

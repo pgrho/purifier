@@ -17,7 +17,7 @@ namespace Shipwreck.Purifier
         private const string DOT =
             "("
             + "(?<ne>ね)"
-            + "|(?<yo>だ?よ)" // TODO: 命令形と区別する
+            + "|(?<yo>(だ|こと)?よ)" // TODO: 連用形+てよ
             + ")?(?<dot>" + DOT_CORE + "+|" + DOT_CORE + "*$)";
         private static readonly Regex dot = new Regex(DOT);
 
