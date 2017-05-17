@@ -6,6 +6,54 @@ namespace Shipwreck.Purifier.Tests
     [TestClass]
     public class PurifierTest
     {
+        #region Pronoun Conversion
+
+        #region Rule for We
+
+        [TestMethod]
+        public void WeTest1()
+            => Assert.AreEqual("私たちの新曲ぷり。", Purifier.Purify("私達の新曲。"));
+
+        [TestMethod]
+        public void WeTest2()
+            => Assert.AreEqual("いま私たちぷり", Purifier.Purify("いま僕たち"));
+
+        [TestMethod]
+        public void WeTest3()
+            => Assert.AreEqual("私たちぷり", Purifier.Purify("僕達"));
+
+        [TestMethod]
+        public void WeTest4()
+            => Assert.AreEqual("私たちぷり", Purifier.Purify("我ら"));
+
+        [TestMethod]
+        public void WeTest5()
+            => Assert.AreEqual("私たちぷり", Purifier.Purify("我々"));
+
+        #endregion Rule for We
+
+        #region Rule for Me
+
+        [TestMethod]
+        public void MeTest1()
+                => Assert.AreEqual("私が可愛いってことぷり", Purifier.Purify("僕が可愛いってこと"));
+
+        [TestMethod]
+        public void MeTest2()
+                => Assert.AreEqual("私ぷり", Purifier.Purify("我"));
+
+        [TestMethod]
+        public void MeTest3()
+            => Assert.AreEqual("無我ぷり", Purifier.Purify("無我"));
+
+        [TestMethod]
+        public void MeTest4()
+            => Assert.AreEqual("公僕ぷり", Purifier.Purify("公僕"));
+
+        #endregion Rule for Me
+
+        #endregion Pronoun Conversion
+
         #region Dot Convertion
 
         #region Dot Char

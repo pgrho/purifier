@@ -9,8 +9,11 @@ namespace Shipwreck.Purifier
 {
     public static class Purifier
     {
-        private static readonly Regex we = new Regex("(私達|我々|われわれ)");
-        private static readonly Regex me = new Regex("僕");
+        private const string HAN = @"[\u2e80-\u2fdf\u3400-\u4dbf\u4d00-\u9fff\uf900-\ufaff\ud800-\udfff]";
+        private const string PRONOUN_PREFIX = "((?<!" + HAN + ")|^)";
+        private const string PRONOUN_SUFFIX = "((?!" + HAN + ")|$)";
+        private static readonly Regex we = new Regex(PRONOUN_PREFIX + "((私|僕)(達|たち)|我ら|我々)" + PRONOUN_SUFFIX);
+        private static readonly Regex me = new Regex(PRONOUN_PREFIX + "(我|僕)" + PRONOUN_SUFFIX);
         private static readonly Regex comma = new Regex("[､、]");
 
         private const string DOT_CORE = "[～…]*[｡。!?！？｣」》♪♫]";
@@ -46,32 +49,31 @@ namespace Shipwreck.Purifier
                 {
                     used = wm;
 
-                    if (IsPronoun(text, wm))
-                    {
-                        text = wm.Result("$`私たち$'");
-                        dl = 3 - wm.Length;
-                    }
+                    text = wm.Result("$`私たち$'");
+                    dl = 3 - wm.Length;
                 }
                 else if (mm?.Success == true && IsPriorTo(mm, cm) && IsPriorTo(mm, dm))
                 {
                     used = mm;
 
-                    if (IsPronoun(text, mm))
-                    {
-                        text = mm.Result("$`私$'");
-                        dl = 1 - mm.Length;
-                    }
+                    text = mm.Result("$`私$'");
+                    dl = 1 - mm.Length;
                 }
                 else if (cm?.Success == true && IsPriorTo(cm, dm))
                 {
                     used = cm;
 
-                    // TODO: 実装
+                    // TODO: 要検討
                 }
                 else if (dm?.Success == true)
                 {
                     used = dm;
+                    var isLast = text.Length == dm.Index + dm.Length;
                     text = dm.Result(GetDotReplacement(text, dm, out dl));
+                    if (isLast)
+                    {
+                        break;
+                    }
                 }
 
                 ws = GetNextStartIndex(wm, used, dl);
@@ -84,19 +86,13 @@ namespace Shipwreck.Purifier
         }
 
         private static Match GetMatch(Regex regex, string text, int startAt)
-            => 0 <= startAt && startAt < text.Length ? regex.Match(text, startAt) : null;
+            => 0 <= startAt && startAt <= text.Length ? regex.Match(text, startAt) : null;
 
         private static bool IsPriorTo(Match m, Match other)
             => !(other?.Success == true && m.Index > other.Index);
 
         private static int GetNextStartIndex(Match m, Match usedMatch, int deltaLength)
             => m?.Success != true ? -1 : (m.Index + deltaLength + (usedMatch == m ? m.Length : 0));
-
-        private static bool IsPronoun(string text, Match m)
-        {
-            // TODO: 代名詞を置換可能か判定する
-            return true;
-        }
 
         private static string GetDotReplacement(string text, Match dm, out int dl)
         {
@@ -123,7 +119,7 @@ namespace Shipwreck.Purifier
             }
 
             // TODO: 敬語対策
-            // TODO: です|である等の削除
+            // TODO: である等の削除
 
             if (exclamation)
             {
